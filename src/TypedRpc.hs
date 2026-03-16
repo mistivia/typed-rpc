@@ -1,4 +1,4 @@
-module Data.TypedRpc
+module TypedRpc
     ( greet
     ) where
 

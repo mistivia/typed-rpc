@@ -1,6 +1,6 @@
 module Main where
 
-import Data.TypedRpc (greet)
+import TypedRpc (greet)
 import Test.HUnit
     ( Counts (errors, failures)
     , Test (TestCase, TestLabel, TestList)
