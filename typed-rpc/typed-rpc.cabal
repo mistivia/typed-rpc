@@ -1,0 +1,32 @@
+cabal-version:      3.0
+name:               typed-rpc
+version:            0.1.0.0
+build-type:         Simple
+license:            ISC
+
+library
+    hs-source-dirs:     src
+    exposed-modules:    Data.TypedRpc
+    build-depends:      base >= 4.14 && < 5
+    default-language:   GHC2024
+    ghc-options:        -Wall
+
+executable typed-rpc-demo
+    main-is:            Main.hs
+    hs-source-dirs:     app
+    build-depends:
+        base >= 4.14 && < 5
+        , typed-rpc
+    default-language:   GHC2024
+    ghc-options:        -Wall
+
+test-suite test
+    type:               exitcode-stdio-1.0
+    hs-source-dirs:     test
+    main-is:            Spec.hs
+    build-depends:
+        base >= 4.14 && < 5
+        , HUnit
+        , typed-rpc
+    default-language:   GHC2024
+    ghc-options:        -Wall
