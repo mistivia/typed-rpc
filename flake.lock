@@ -1,5 +1,53 @@
 {
   "nodes": {
+    "accessor-hs": {
+      "inputs": {
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773563020,
+        "narHash": "sha256-DKzk2VLbyfW7TZcLQkJzDTYy3NJKu7/ukUadCjYBeDQ=",
+        "owner": "mistivia",
+        "repo": "accessor-hs",
+        "rev": "9da6586debd66f4bb6c35c1bba822f8f0954b029",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mistivia",
+        "repo": "accessor-hs",
+        "type": "github"
+      }
+    },
+    "accessor-hs_2": {
+      "inputs": {
+        "flake-utils": [
+          "flex-record",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "flex-record",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773563020,
+        "narHash": "sha256-DKzk2VLbyfW7TZcLQkJzDTYy3NJKu7/ukUadCjYBeDQ=",
+        "owner": "mistivia",
+        "repo": "accessor-hs",
+        "rev": "9da6586debd66f4bb6c35c1bba822f8f0954b029",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mistivia",
+        "repo": "accessor-hs",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
@@ -15,6 +63,30 @@
       "original": {
         "owner": "numtide",
         "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flex-record": {
+      "inputs": {
+        "accessor-hs": "accessor-hs_2",
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773565587,
+        "narHash": "sha256-7+794LPfhSqAztS4A/TULi3i9OlZeSv+SwctPrYyBsg=",
+        "owner": "mistivia",
+        "repo": "flex-record",
+        "rev": "f03e8b11cf91583477d0cb32214f068c9612ce3b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mistivia",
+        "repo": "flex-record",
         "type": "github"
       }
     },
@@ -36,7 +108,9 @@
     },
     "root": {
       "inputs": {
+        "accessor-hs": "accessor-hs",
         "flake-utils": "flake-utils",
+        "flex-record": "flex-record",
         "nixpkgs": "nixpkgs"
       }
     },
