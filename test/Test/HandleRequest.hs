@@ -18,14 +18,15 @@ import TypedRpc
     , service
     )
 import qualified Network.Wai as Wai
+import Data.Text (Text)
 
-echoHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+echoHandler :: Wai.Request -> Int -> IO (Either (Int, Text) Int)
 echoHandler _ n = pure (Right n)
 
-incHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+incHandler :: Wai.Request -> Int -> IO (Either (Int, Text) Int)
 incHandler _ n = pure (Right (n + 1))
 
-errorHandler :: Wai.Request -> () -> IO (Either (Int, String) String)
+errorHandler :: Wai.Request -> () -> IO (Either (Int, Text) Text)
 errorHandler _ _ = pure $ Left (500, "Internal error")
 
 emptyService :: Service (Apis '[])
@@ -44,7 +45,7 @@ doubleService = service
     $ api @"inc" incHandler
     . api @"echo" echoHandler
 
-errorService :: Service (Apis '[ApiCmd "fail" () String])
+errorService :: Service (Apis '[ApiCmd "fail" () Text])
 errorService = service (api @"fail" errorHandler)
 
 dummyRequest :: Wai.Request
@@ -56,7 +57,7 @@ handleRequestTests =
         [ TestLabel "handleRequest empty service returns method not found" $
             TestCase $ do
                 result <- handleRequest emptyService "echo" dummyRequest (toJSON (42 :: Int))
-                assertEqual "expected method not found error" (Left (400, "Method not found: echo")) result
+                assertEqual "expected method not found error" (Left (404, "Method not found: echo")) result
         , TestLabel "handleRequest finds method in single service" $
             TestCase $ do
                 result <- handleRequest singleService "echo" dummyRequest (toJSON (42 :: Int))
@@ -72,7 +73,7 @@ handleRequestTests =
         , TestLabel "handleRequest returns method not found for non-existent method" $
             TestCase $ do
                 result <- handleRequest doubleService "nonexistent" dummyRequest (toJSON (1 :: Int))
-                assertEqual "expected method not found error" (Left (400, "Method not found: nonexistent")) result
+                assertEqual "expected method not found error" (Left (404, "Method not found: nonexistent")) result
         , TestLabel "handleRequest propagates handler error" $
             TestCase $ do
                 result <- handleRequest errorService "fail" dummyRequest (toJSON ())

@@ -16,14 +16,15 @@ import TypedRpc
     , service
     )
 import qualified Network.Wai as Wai
+import Data.Text (Text)
 
 emptyService :: Service (Apis '[])
 emptyService = service id
 
-echoHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+echoHandler :: Wai.Request -> Int -> IO (Either (Int, Text) Int)
 echoHandler _ n = pure (Right n)
 
-incHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+incHandler :: Wai.Request -> Int -> IO (Either (Int, Text) Int)
 incHandler _ n = pure (Right (n + 1))
 
 singleService :: Service (Apis '[ApiCmd "echo" Int Int])
