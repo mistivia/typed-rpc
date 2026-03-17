@@ -8,14 +8,14 @@ import Test.HUnit
     , runTestTT
     )
 import TypedRpc
-    ( Api
+    ( Apis
     , ApiCmd
     , Service (SrvCons, SrvNil)
     , api
     , service
     )
 
-emptyService :: Service (Api '[])
+emptyService :: Service (Apis '[])
 emptyService = service id
 
 echoHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
@@ -24,10 +24,15 @@ echoHandler _ n = pure (Right n)
 incHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
 incHandler _ n = pure (Right (n + 1))
 
-singleService :: Service (Api '[ApiCmd "echo" Int Int])
+singleService :: Service (Apis '[ApiCmd "echo" Int Int])
 singleService = service (api @"echo" echoHandler)
 
-doubleService :: Service (Api '[ApiCmd "inc" Int Int, ApiCmd "echo" Int Int])
+type DoubleApis = Apis
+    [ ApiCmd "inc" Int Int
+    , ApiCmd "echo" Int Int
+    ]
+
+doubleService :: Service DoubleApis
 doubleService = service 
     $ api @"inc" incHandler
     . api @"echo" echoHandler

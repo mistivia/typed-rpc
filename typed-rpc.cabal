@@ -10,6 +10,7 @@ library
     build-depends:
         base >= 4.14 && < 5
         , aeson
+        , bytestring
         , wai
     default-language:   GHC2024
     ghc-options:        -Wall
