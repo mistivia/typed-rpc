@@ -1,4 +1,5 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -9,14 +10,51 @@ module TypedRpc
     , service
     , api
     , handleRequest
+    , JsonRpcRequest(..)
+    , JsonRpcResponse(..)
     ) where
 
-import Data.Aeson (FromJSON, ToJSON, Value, fromJSON, toJSON, Result(..))
+import Data.Aeson
+    ( FromJSON(..) , ToJSON(..)
+    , Value(..) , Result(..)
+    , fromJSON, withObject
+    , object
+    , (.=), (.:), (.:?)
+    )
 import Data.Kind (Constraint, Type)
 import Data.Proxy (Proxy(..))
+import Data.Text (Text)
 import GHC.TypeError (TypeError, ErrorMessage(..))
 import GHC.TypeLits (KnownSymbol, Symbol, symbolVal)
 import Network.Wai qualified as Wai
+
+data JsonRpcRequest = JsonRpcRequest
+    { jrJsonrpc :: !Text
+    , jrMethod :: !Text
+    , jrParams :: !Value
+    , jrId :: !(Maybe Integer)
+    } deriving (Show, Eq)
+
+instance FromJSON JsonRpcRequest where
+    parseJSON = withObject "JsonRpcRequest" $ \v ->
+        JsonRpcRequest
+            <$> v .: "jsonrpc"
+            <*> v .: "method"
+            <*> v .: "params"
+            <*> v .:? "id"
+
+data JsonRpcResponse = JsonRpcResponse
+    { jrpJsonrpc :: !Text
+    , jrpResult :: !Value
+    , jrpId :: !(Maybe Integer)
+    } deriving (Show, Eq)
+
+instance ToJSON JsonRpcResponse where
+    toJSON resp = object
+        [ "jsonrpc" .= jrpJsonrpc resp
+        , "result" .= jrpResult resp
+        , "id" .= maybe Null (Number . fromInteger) (jrpId resp)
+        ]
 
 -- | Type family to check if a name already exists in the list of ApiCmds
 type family NameInApiCmds (name :: Symbol) (cmds :: [Type]) :: Bool where
