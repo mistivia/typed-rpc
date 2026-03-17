@@ -105,3 +105,7 @@ import Data.Accessor
 EOF
 ```
 
+
+## Adding a New Test Module
+
+If you need to add a test module, first read SKILLS/add-new-test-module.md.
