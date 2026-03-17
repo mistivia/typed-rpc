@@ -1,19 +1,55 @@
 module Main where
 
-import TypedRpc (greet)
+import Network.Wai qualified as Wai
 import Test.HUnit
     ( Counts (errors, failures)
     , Test (TestCase, TestLabel, TestList)
-    , assertEqual
+    , assertBool
     , runTestTT
     )
+import TypedRpc
+    ( Api
+    , ApiCmd
+    , Service (SrvCons, SrvNil)
+    , api
+    , service
+    )
+
+emptyService :: Service (Api '[])
+emptyService = service id
+
+echoHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+echoHandler _ n = pure (Right n)
+
+incHandler :: Wai.Request -> Int -> IO (Either (Int, String) Int)
+incHandler _ n = pure (Right (n + 1))
+
+singleService :: Service (Api '[ApiCmd "echo" Int Int])
+singleService = service (api @"echo" echoHandler)
+
+doubleService :: Service (Api '[ApiCmd "inc" Int Int, ApiCmd "echo" Int Int])
+doubleService = service 
+    $ api @"inc" incHandler
+    . api @"echo" echoHandler
 
 tests :: Test
 tests =
     TestList
-        [ TestLabel "greet returns expected message" $
+        [ TestLabel "service id builds SrvNil" $
             TestCase $
-                assertEqual "greet message" "Hello from typed-rpc!" greet
+                assertBool "expected SrvNil" $
+                    case emptyService of
+                        SrvNil -> True
+        , TestLabel "api builds single command" $
+            TestCase $
+                assertBool "expected SrvCons _ SrvNil" $
+                    case singleService of
+                        SrvCons _ SrvNil -> True
+        , TestLabel "composed api builds two commands" $
+            TestCase $
+                assertBool "expected SrvCons _ (SrvCons _ SrvNil)" $
+                    case doubleService of
+                        SrvCons _ (SrvCons _ SrvNil) -> True
         ]
 
 main :: IO ()

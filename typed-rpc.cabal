@@ -9,9 +9,7 @@ library
     exposed-modules:    TypedRpc
     build-depends:
         base >= 4.14 && < 5
-        , accessor-hs
         , aeson
-        , flex-record
         , wai
     default-language:   GHC2024
     ghc-options:        -Wall
@@ -22,6 +20,8 @@ executable typed-rpc-demo
     build-depends:
         base >= 4.14 && < 5
         , typed-rpc
+        , flex-record
+        , accessor-hs
     default-language:   GHC2024
     ghc-options:        -Wall
 
@@ -33,5 +33,6 @@ test-suite test
         base >= 4.14 && < 5
         , HUnit
         , typed-rpc
+        , wai
     default-language:   GHC2024
     ghc-options:        -Wall
