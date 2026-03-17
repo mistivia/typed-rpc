@@ -13,10 +13,26 @@ module TypedRpc
 
 import Data.Aeson (FromJSON, ToJSON, decode, encode)
 import Data.ByteString.Lazy (ByteString)
-import Data.Kind (Type)
+import Data.Kind (Constraint, Type)
 import Data.Proxy (Proxy(..))
+import GHC.TypeError (TypeError, ErrorMessage(..))
 import GHC.TypeLits (KnownSymbol, Symbol, symbolVal)
 import Network.Wai qualified as Wai
+
+-- | Type family to check if a name already exists in the list of ApiCmds
+type family NameInApiCmds (name :: Symbol) (cmds :: [Type]) :: Bool where
+    NameInApiCmds _ '[] = 'False
+    NameInApiCmds name (ApiCmd name _ _ ': _) = 'True
+    NameInApiCmds name (_ ': rest) = NameInApiCmds name rest
+
+-- | Constraint that fails with a type error if name is already in cmds
+type family NameNotInApiCmds (name :: Symbol) (cmds :: [Type]) :: Constraint where
+    NameNotInApiCmds name cmds = NameNotInApiCmdsImpl (NameInApiCmds name cmds) name
+
+type family NameNotInApiCmdsImpl (found :: Bool) (name :: Symbol) :: Constraint where
+    NameNotInApiCmdsImpl 'False _ = ()
+    NameNotInApiCmdsImpl 'True name =
+        TypeError ('Text "Duplicate API name: " ':<>: 'ShowType name)
 
 data ApiCmd (name :: Symbol) ain aout
 
@@ -35,7 +51,7 @@ service build = build SrvNil
 
 api ::
     forall name ain aout cmds.
-    (FromJSON ain, ToJSON aout) =>
+    (FromJSON ain, ToJSON aout, NameNotInApiCmds name cmds) =>
     (Wai.Request -> ain -> IO (Either (Int, String) aout)) ->
     Service (Apis cmds) ->
     Service (Apis (ApiCmd name ain aout ': cmds))
