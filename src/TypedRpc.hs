@@ -11,8 +11,7 @@ module TypedRpc
     , handleRequest
     ) where
 
-import Data.Aeson (FromJSON, ToJSON, decode, encode)
-import Data.ByteString.Lazy (ByteString)
+import Data.Aeson (FromJSON, ToJSON, Value, fromJSON, toJSON, Result(..))
 import Data.Kind (Constraint, Type)
 import Data.Proxy (Proxy(..))
 import GHC.TypeError (TypeError, ErrorMessage(..))
@@ -64,8 +63,8 @@ handleRequest ::
     Service (Apis apis)
     -> String
     -> Wai.Request
-    -> ByteString
-    -> IO (Either (Int, String) ByteString)
+    -> Value
+    -> IO (Either (Int, String) Value)
 handleRequest srv methodName req body =
     handleRequestImpl @apis methodName srv req body
 
@@ -75,8 +74,8 @@ class HandleRequestImpl (apis :: [Type]) where
         String
         -> Service (Apis apis)
         -> Wai.Request
-        -> ByteString
-        -> IO (Either (Int, String) ByteString)
+        -> Value
+        -> IO (Either (Int, String) Value)
 
 instance HandleRequestImpl '[] where
     handleRequestImpl methodName _ _ _ =
@@ -90,12 +89,12 @@ instance
     ) => HandleRequestImpl (ApiCmd name ain aout ': rest) where
     handleRequestImpl methodName (SrvCons handler rest) req body =
         if methodName == symbolVal (Proxy @name)
-        then case decode body of
-            Nothing -> pure $ Left (400, "Invalid JSON input")
-            Just input -> do
+        then case fromJSON @ain body of
+            Error err -> pure $ Left (400, "Invalid JSON input: " ++ err)
+            Success input -> do
                 result <- handler req input
                 pure $ case result of
                     Left err -> Left err
-                    Right out -> Right (encode out)
+                    Right out -> Right (toJSON out)
         else handleRequestImpl @rest methodName rest req body
 

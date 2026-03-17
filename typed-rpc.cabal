@@ -33,6 +33,7 @@ test-suite test
     build-depends:
         base >= 4.14 && < 5
         , HUnit
+        , aeson
         , typed-rpc
         , wai
     default-language:   GHC2024
