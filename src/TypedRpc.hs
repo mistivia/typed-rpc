@@ -13,6 +13,7 @@ module TypedRpc
     , makeApplication
     , JsonRpcRequest(..)
     , JsonRpcResponse(..)
+    , TypedRpcResp
     ) where
 
 import Data.Aeson
@@ -82,8 +83,7 @@ data Apis (cmds :: [Type])
 
 data Service apis where
     SrvNil :: Service (Apis '[])
-    SrvCons ::
-        (FromJSON ain, ToJSON aout) =>
+    SrvCons :: (FromJSON ain, ToJSON aout, NameNotInApiCmds name cmds) =>
         (Wai.Request -> ain -> IO (Either (Int, Text) aout)) ->
         Service (Apis cmds) ->
         Service (Apis (ApiCmd name ain aout ': cmds))
@@ -175,3 +175,4 @@ makeApplication service' request respond = do
                         [("Content-Type", "application/json")]
                         (encode response)
 
+type TypedRpcResp a = IO (Either (Int, Text) a)

@@ -25,6 +25,12 @@ executable typed-rpc-demo
         , typed-rpc
         , flex-record
         , accessor-hs
+        , warp
+        , text
+        , aeson
+        , bytestring
+        , http-types
+        , wai
     default-language:   GHC2024
     ghc-options:        -Wall
 
