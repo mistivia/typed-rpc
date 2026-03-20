@@ -24,7 +24,6 @@ executable typed-rpc-demo
         base >= 4.14 && < 5
         , typed-rpc
         , flex-record
-        , accessor-hs
         , warp
         , text
         , aeson

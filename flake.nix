@@ -9,21 +9,15 @@
             inputs.nixpkgs.follows = "nixpkgs";
             inputs.flake-utils.follows = "flake-utils";
         };
-        accessor-hs = {
-            url = "github:mistivia/accessor-hs";
-            inputs.nixpkgs.follows = "nixpkgs";
-            inputs.flake-utils.follows = "flake-utils";
-        };
     };
 
-    outputs = { self, nixpkgs, flake-utils, flex-record, accessor-hs }:
+    outputs = { self, nixpkgs, flake-utils, flex-record}:
         flake-utils.lib.eachDefaultSystem (system:
         let
             pkgs = nixpkgs.legacyPackages.${system};
             haskellPackages = pkgs.haskellPackages.override {
                 overrides = hself: hsuper: {
                     "flex-record" = flex-record.packages.${system}.default;
-                    "accessor-hs" = accessor-hs.packages.${system}.default;
                 };
             };
             project = haskellPackages.callCabal2nix "typed-rpc" ./. {};

@@ -76,18 +76,6 @@ It also provides `Data.FlexRecord.Json` to support `ToJSON` /
 <https://github.com/mistivia/flex-record>. See the README.md on the
 master branch for documentation.
 
-## accessor-hs
-
-`Data.Accessor` provides a simpler "getter + setter" abstraction than
-lens: build accessors with `accessor`, use `view` / `set` / `over` for
-reading, writing, and transforming values, compose nested access with
-`dot`, and process `Functor` containers (such as `Maybe` and lists)
-with `facc`. It also includes practical list-index accessors (`listAt`
-and `_0` to `_9`), making it well-suited for building data access
-chains with low cognitive overhead. Repository:
-<https://github.com/mistivia/accessor-hs>. See the README.md on the
-master branch for documentation.
-
 ## Querying Function and Type Signatures in GHC/GHCi
 
 In an interactive environment, the most commonly used GHCi commands
