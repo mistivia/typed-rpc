@@ -24,15 +24,16 @@ import Data.Aeson
     , (.=), (.:), (.:?)
     )
 import Data.Text qualified as T
-import Data.Text.Encoding qualified as T
 import Data.Kind (Constraint, Type)
 import Data.Proxy (Proxy(..))
 import Data.Text (Text)
 import GHC.TypeError (TypeError, ErrorMessage(..))
 import GHC.TypeLits (KnownSymbol, Symbol, symbolVal)
 import Network.Wai qualified as Wai
-import Network.HTTP.Types.Status qualified as Status
-import Data.ByteString.Lazy.Char8 qualified as BLC
+import Network.HTTP.Types qualified
+
+contentTypeJson :: Network.HTTP.Types.Header
+contentTypeJson = ("Content-Type", "application/json")
 
 data JsonRpcRequest = JsonRpcRequest
     { jrJsonrpc :: !Text
@@ -54,6 +55,40 @@ data JsonRpcResponse = JsonRpcResponse
     , jrpResult :: !Value
     , jrpId :: !(Maybe Integer)
     } deriving (Show, Eq)
+
+data JsonRpcErrorResp = JsonRpcErrorResp
+    { jreJsonrpc :: !Text
+    , jreError :: !JsonRpcError
+    , jreId :: !(Maybe Integer)
+    } deriving (Show, Eq)
+
+data JsonRpcError = JsonRpcError
+    { jreCode :: !Int
+    , jreMessage :: !Text
+    } deriving (Show, Eq)
+
+instance ToJSON JsonRpcError where
+    toJSON err = object
+        [ "code" .= jreCode err
+        , "message" .= jreMessage err
+        ]
+
+instance ToJSON JsonRpcErrorResp where
+    toJSON resp = object
+        [ "jsonrpc" .= jreJsonrpc resp
+        , "error" .= jreError resp
+        , "id" .= maybe Null (Number . fromInteger) (jreId resp)
+        ]
+
+mkErrorResp :: Int -> Text -> Maybe Integer -> JsonRpcErrorResp
+mkErrorResp code errMsg reqId = JsonRpcErrorResp
+    { jreJsonrpc = "2.0"
+    , jreError = JsonRpcError
+        { jreCode = code
+        , jreMessage = errMsg
+        }
+    , jreId = reqId
+    }
 
 instance ToJSON JsonRpcResponse where
     toJSON resp = object
@@ -122,7 +157,7 @@ class HandleRequestImpl (apis :: [Type]) where
 
 instance HandleRequestImpl '[] where
     handleRequestImpl methodName _ _ _ =
-        pure $ Left (404, "Method not found: " <> methodName)
+        pure $ Left (-32601, "Method not found: " <> methodName)
 
 instance
     ( FromJSON ain
@@ -133,7 +168,7 @@ instance
     handleRequestImpl methodName (SrvCons handler rest) req body =
         if methodName == T.pack (symbolVal (Proxy @name))
         then case fromJSON @ain body of
-            Error err -> pure $ Left (400, "Invalid JSON input: " <> T.pack err)
+            Error err -> pure $ Left (-32602, "Invalid params: " <> T.pack err)
             Success input -> do
                 result <- handler req input
                 pure $ case result of
@@ -150,20 +185,17 @@ makeApplication service' request respond = do
     body <- Wai.strictRequestBody request
     case eitherDecode @JsonRpcRequest body of
         Left err -> respond $ Wai.responseLBS
-            Status.status400
-            []
-            (BLC.pack $ "Invalid JSON: " ++ err)
+            Network.HTTP.Types.status200
+            [contentTypeJson]
+            (encode $ mkErrorResp (-32700) (T.pack $ "Parse error: " ++ err) Nothing)
         Right jrRequest -> do
             result <- handleRequest @apis service' (jrMethod jrRequest) request (jrParams jrRequest)
             case result of
                 Left (code, errMsg) ->
-                    let httpStatus = if code >= 400 && code < 600
-                            then Status.mkStatus code (T.encodeUtf8 errMsg)
-                            else Status.status500
-                    in respond $ Wai.responseLBS
-                        httpStatus
-                        []
-                        (BLC.pack $ T.unpack errMsg)
+                    respond $ Wai.responseLBS
+                        Network.HTTP.Types.status200
+                        [contentTypeJson]
+                        (encode $ mkErrorResp code errMsg (jrId jrRequest))
                 Right val -> do
                     let response = JsonRpcResponse
                             { jrpJsonrpc = "2.0"
@@ -171,8 +203,8 @@ makeApplication service' request respond = do
                             , jrpId = jrId jrRequest
                             }
                     respond $ Wai.responseLBS
-                        Status.status200
-                        [("Content-Type", "application/json")]
+                        Network.HTTP.Types.status200
+                        [contentTypeJson]
                         (encode response)
 
 type TypedRpcResp a = IO (Either (Int, Text) a)

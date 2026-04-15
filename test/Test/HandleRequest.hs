@@ -57,7 +57,7 @@ handleRequestTests =
         [ TestLabel "handleRequest empty service returns method not found" $
             TestCase $ do
                 result <- handleRequest emptyService "echo" dummyRequest (toJSON (42 :: Int))
-                assertEqual "expected method not found error" (Left (404, "Method not found: echo")) result
+                assertEqual "expected method not found error" (Left (-32601, "Method not found: echo")) result
         , TestLabel "handleRequest finds method in single service" $
             TestCase $ do
                 result <- handleRequest singleService "echo" dummyRequest (toJSON (42 :: Int))
@@ -73,7 +73,7 @@ handleRequestTests =
         , TestLabel "handleRequest returns method not found for non-existent method" $
             TestCase $ do
                 result <- handleRequest doubleService "nonexistent" dummyRequest (toJSON (1 :: Int))
-                assertEqual "expected method not found error" (Left (404, "Method not found: nonexistent")) result
+                assertEqual "expected method not found error" (Left (-32601, "Method not found: nonexistent")) result
         , TestLabel "handleRequest propagates handler error" $
             TestCase $ do
                 result <- handleRequest errorService "fail" dummyRequest (toJSON ())
