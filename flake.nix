@@ -5,7 +5,7 @@
         nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
         flake-utils.url = "github:numtide/flake-utils";
         flex-record = {
-            url = "github:mistivia/flex-record";
+            url = "https://github.com/mistivia/releases/releases/download/flex-record-0.1.1/flex-record-0.1.1.tar.gz";
             inputs.nixpkgs.follows = "nixpkgs";
             inputs.flake-utils.follows = "flake-utils";
         };

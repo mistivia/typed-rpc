@@ -12,17 +12,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1773563020,
-        "narHash": "sha256-DKzk2VLbyfW7TZcLQkJzDTYy3NJKu7/ukUadCjYBeDQ=",
-        "owner": "mistivia",
-        "repo": "accessor-hs",
-        "rev": "9da6586debd66f4bb6c35c1bba822f8f0954b029",
-        "type": "github"
+        "lastModified": 1773996108,
+        "narHash": "sha256-MtJjRRBljfCBNvX1UWX6A/M+bYE290ue8hzjWOpqvv4=",
+        "type": "tarball",
+        "url": "https://github.com/mistivia/releases/releases/download/accessor-hs-0.1.0/accessor-hs-0.1.0.tar.gz"
       },
       "original": {
-        "owner": "mistivia",
-        "repo": "accessor-hs",
-        "type": "github"
+        "type": "tarball",
+        "url": "https://github.com/mistivia/releases/releases/download/accessor-hs-0.1.0/accessor-hs-0.1.0.tar.gz"
       }
     },
     "flake-utils": {
@@ -54,17 +51,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1773847868,
-        "narHash": "sha256-4+quewANbFoAg8dgHozPOt36EvfVxcavpGUJGnG8BeM=",
-        "owner": "mistivia",
-        "repo": "flex-record",
-        "rev": "804815266e0f43589a550fc2f93a9bd92fca3c56",
-        "type": "github"
+        "lastModified": 1780454001,
+        "narHash": "sha256-uXOUwOrmTEeLoGKMzb8xq6L/hxayJP5e92Yxx+Ed2FQ=",
+        "type": "tarball",
+        "url": "https://github.com/mistivia/releases/releases/download/flex-record-0.1.1/flex-record-0.1.1.tar.gz"
       },
       "original": {
-        "owner": "mistivia",
-        "repo": "flex-record",
-        "type": "github"
+        "type": "tarball",
+        "url": "https://github.com/mistivia/releases/releases/download/flex-record-0.1.1/flex-record-0.1.1.tar.gz"
       }
     },
     "nixpkgs": {
